@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BikeWear Pro — Controle de Manutenção</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  /* ── Core Dark Palette ── */
+  --bg-0: #07090D;
+  --bg-1: #0D1017;
+  --bg-2: #121620;
+  --bg-3: #181E2A;
+  --bg-4: #1D2535;
+  --border: #232D3F;
+  --border-subtle: #1A2130;
+
+  /* ── Text ── */
+  --text-100: #F0F4F8;
+  --text-200: #A8BBCC;
+  --text-300: #607080;
+
+  /* ── Brand: Cycling Orange ── */
+  --orange:  #FF5500;
+  --orange-dim: rgba(255,85,0,0.12);
+  --orange-border: rgba(255,85,0,0.25);
+  --orange-glow: 0 0 20px rgba(255,85,0,0.15);
+
+  /* ── Status Colors ── */
+  --green:        #22C55E;
+  --green-dim:    rgba(34,197,94,0.1);
+  --green-border: rgba(34,197,94,0.25);
+
+  --amber:        #F59E0B;
+  --amber-dim:    rgba(245,158,11,0.1);
+  --amber-border: rgba(245,158,11,0.25);
+
+  --red:          #EF4444;
+  --red-dim:      rgba(239,68,68,0.1);
+  --red-border:   rgba(239,68,68,0.25);
+
+  --warn:         #F97316;
+  --warn-dim:     rgba(249,115,22,0.1);
+  --warn-border:  rgba(249,115,22,0.25);
+
+  /* ── UI ── */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius:    14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow:    0 4px 20px rgba(0,0,0,0.5);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.6);
+}
+
+html { scroll-behavior:smooth }
+body {
+  font-family:'Outfit',sans-serif;
+  background:var(--bg-0);
+  color:var(--text-100);
+  min-height:100vh;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:5px }
+::-webkit-scrollbar-track { background:transparent }
+::-webkit-scrollbar-thumb { background:var(--border);border-radius:3px }
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+.app-header {
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,9,13,0.92);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border-subtle);
+}
+.header-stripe {
+  height:3px;
+  background:linear-gradient(90deg, var(--orange) 0%, #FF8C00 50%, #FFB800 100%);
+}
+.header-inner {
+  max-width:1280px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;gap:12px;
+}
+.logo {
+  display:flex;align-items:center;gap:12px;text-decoration:none;
+}
+.logo-icon {
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--orange),#FF8C00);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow: var(--orange-glow);
+  flex-shrink:0;
+}
+.logo-icon svg { display:block }
+.logo-wordmark { font-size:1.18rem;font-weight:800;letter-spacing:-0.5px;line-height:1 }
+.logo-wordmark span { color:var(--orange) }
+.logo-sub { font-size:0.68rem;font-weight:500;color:var(--text-300);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px }
+
+.header-right { display:flex;align-items:center;gap:20px }
+.header-stats { display:flex;gap:16px;font-size:0.82rem;color:var(--text-300) }
+.header-stat b { color:var(--text-100);font-weight:600 }
+.header-alert { color:var(--red);font-weight:700;display:flex;align-items:center;gap:4px }
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+.nav-wrap {
+  background:var(--bg-0);
+  border-bottom:1px solid var(--border-subtle);
+}
+.nav-tabs {
+  max-width:1280px;margin:0 auto;
+  display:flex;gap:2px;padding:0 20px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.nav-tabs::-webkit-scrollbar { display:none }
+.nav-tab {
+  display:flex;align-items:center;gap:7px;
+  padding:13px 16px;
+  font-family:'Outfit',sans-serif;font-size:0.875rem;font-weight:500;
+  color:var(--text-300);background:transparent;border:none;
+  cursor:pointer;white-space:nowrap;transition:var(--transition);
+  position:relative;
+}
+.nav-tab .tab-icon { font-size:0.9rem;opacity:0.7;transition:var(--transition) }
+.nav-tab:hover { color:var(--text-200) }
+.nav-tab:hover .tab-icon { opacity:1 }
+.nav-tab.active { color:var(--text-100);font-weight:600 }
+.nav-tab.active .tab-icon { opacity:1 }
+.nav-tab.active::after {
+  content:'';position:absolute;bottom:0;left:16px;right:16px;height:2px;
+  background:var(--orange);border-radius:2px 2px 0 0;
+}
+
+/* ══════════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════════ */
+.main { max-width:1280px;margin:0 auto;padding:24px 20px }
+.page { display:none }
+.page.active { display:block }
+
+/* ══════════════════════════════════════
+   SECTION HEADER
+══════════════════════════════════════ */
+.section-hd {
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;margin-bottom:20px;
+}
+.section-title {
+  font-size:1.25rem;font-weight:800;letter-spacing:-0.3px;
+  display:flex;align-items:center;gap:10px;
+}
+.section-title .count {
+  font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;
+  background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border);
+  padding:3px 10px;border-radius:20px;
+}
+
+/* ══════════════════════════════════════
+   CARDS
+══════════════════════════════════════ */
+.card {
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:22px;margin-bottom:14px;
+  transition:border-color var(--transition);
+}
+.card:hover { border-color:var(--border) }
+.card-title { font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px }
+
+/* ══════════════════════════════════════
+   DASHBOARD STAT CARDS
+══════════════════════════════════════ */
+.dash-stats {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px;margin-bottom:24px;
+}
+.dash-stat-card {
+  background:var(--bg-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px 18px;
+  position:relative;overflow:hidden;
+  transition:transform var(--transition),border-color var(--transition);
+}
+.dash-stat-card:hover { transform:translateY(-2px);border-color:var(--border) }
+.dash-stat-card::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--orange),transparent);
+  opacity:0.6;
+}
+.dash-stat-card .stat-icon {
+  font-size:1.5rem;margin-bottom:10px;opacity:0.8;display:block;
+}
+.dash-stat-card .value {
+  font-size:1.9rem;font-weight:800;font-family:'JetBrains Mono',monospace;
+  letter-spacing:-1px;color:var(--text-100);line-height:1;margin-bottom:4px;
+}
+.dash-stat-card .label {
+  font-size:0.75rem;font-weight:600;color:var(--text-300);
+  text-transform:uppercase;letter-spacing:1px;
+}
+.dash-stat-card .sub {
+  font-size:0.78rem;color:var(--text-300);margin-top:4px;
+}
+.dash-stat-card.trend-up::before { background:linear-gradient(90deg,var(--green),transparent) }
+.dash-stat-card.trend-up .value { color:var(--green) }
+.dash-stat-card.trend-down::before { background:linear-gradient(90deg,var(--warn),transparent) }
+.dash-stat-card.trend-down .value { color:var(--warn) }
+
+/* ══════════════════════════════════════
+   ALERTS BANNER
+══════════════════════════════════════ */
+.alerts-banner {
+  background:var(--bg-2);
+  border:1px solid var(--red-border);
+  border-left:3px solid var(--red);
+  border-radius:var(--radius);
+  padding:18px 20px;margin-bottom:20px;
+}
+.alerts-banner h3 {
+  font-size:0.85rem;font-weight:700;color:var(--red);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.alert-item {
+  display:flex;align-items:center;gap:12px;padding:10px 12px;
+  background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);
+  margin-bottom:6px;font-size:0.875rem;
+  border:1px solid rgba(255,255,255,0.04);
+}
+.alert-item:last-child { margin-bottom:0 }
+.alert-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0 }
+.alert-dot.yellow { background:var(--amber) }
+.alert-dot.orange { background:var(--warn) }
+.alert-dot.red { background:var(--red) }
+
+/* ══════════════════════════════════════
+   GRID LAYOUTS
+══════════════════════════════════════ */
+.grid-2 { display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px }
+.grid-3 { display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px }
+.grid-4 { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px }
+
+/* ══════════════════════════════════════
+   BIKE CARDS
+══════════════════════════════════════ */
+.bike-card {
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:20px;
+  cursor:default;transition:all var(--transition);position:relative;overflow:hidden;
+}
+.bike-card::after {
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at top right,rgba(255,85,0,0.06),transparent 70%);
+  pointer-events:none;
+}
+.bike-card:hover { border-color:rgba(255,85,0,0.3);transform:translateY(-2px);box-shadow:var(--shadow) }
+.bike-top-bar { height:2px;margin:-20px -20px 16px;background:linear-gradient(90deg,var(--orange) 0%,transparent 70%) }
+.bike-name { font-size:1.15rem;font-weight:800;letter-spacing:-0.3px;margin-bottom:6px }
+.bike-meta { display:flex;gap:14px;font-size:0.8rem;color:var(--text-300);flex-wrap:wrap }
+.bike-meta b { color:var(--text-200);font-weight:600 }
+.bike-km { font-family:'JetBrains Mono',monospace;color:var(--orange);font-weight:700;font-size:0.9rem }
+.bike-alerts { margin-top:12px;display:flex;gap:6px;flex-wrap:wrap }
+
+/* ══════════════════════════════════════
+   COMPONENT CARDS
+══════════════════════════════════════ */
+.comp-card {
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+  transition:all var(--transition);position:relative;
+}
+.comp-card:hover { border-color:var(--border);transform:translateY(-1px) }
+.comp-card.status-green  { border-left:3px solid var(--green) }
+.comp-card.status-yellow { border-left:3px solid var(--amber) }
+.comp-card.status-orange { border-left:3px solid var(--warn) }
+.comp-card.status-red    { border-left:3px solid var(--red) }
+.comp-card.paused        { opacity:0.5;border-left:3px solid var(--text-300) }
+.comp-header { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px }
+.comp-name { font-weight:700;font-size:0.95rem;margin-bottom:2px }
+.comp-type { font-size:0.75rem;color:var(--text-300) }
+.comp-stats { display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0 }
+.comp-stat { font-size:0.8rem;color:var(--text-300) }
+.comp-stat b { color:var(--text-100);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:0.82rem }
+.comp-actions { display:flex;gap:6px;margin-top:12px;flex-wrap:wrap }
+.comp-forecast {
+  font-size:0.76rem;padding:6px 10px;margin-top:8px;
+  background:rgba(245,158,11,0.08);border:1px solid var(--amber-border);
+  border-radius:var(--radius-xs);color:var(--amber);
+  display:flex;align-items:center;gap:6px;
+}
+.comp-cost {
+  font-size:0.76rem;padding:6px 10px;margin-top:4px;
+  background:var(--green-dim);border:1px solid var(--green-border);
+  border-radius:var(--radius-xs);color:var(--green);
+  display:flex;align-items:center;gap:6px;
+}
+
+/* ══════════════════════════════════════
+   PROGRESS BARS
+══════════════════════════════════════ */
+.progress-wrap { margin:10px 0 }
+.progress-bar {
+  height:7px;background:var(--bg-0);border-radius:4px;overflow:hidden;
+  border:1px solid var(--border-subtle);
+}
+.progress-fill { height:100%;border-radius:4px;transition:width 0.7s ease }
+.progress-fill.green  { background:linear-gradient(90deg,#16A34A,#22C55E) }
+.progress-fill.yellow { background:linear-gradient(90deg,#D97706,#F59E0B) }
+.progress-fill.orange { background:linear-gradient(90deg,#EA580C,#F97316) }
+.progress-fill.red    { background:linear-gradient(90deg,#DC2626,#EF4444) }
+.progress-label { display:flex;justify-content:space-between;font-size:0.74rem;color:var(--text-300);margin-top:5px }
+
+/* ══════════════════════════════════════
+   FORMS
+══════════════════════════════════════ */
+.form-group { margin-bottom:14px }
+.form-label {
+  display:block;font-size:0.75rem;font-weight:600;color:var(--text-300);
+  margin-bottom:5px;text-transform:uppercase;letter-spacing:0.7px;
+}
+.form-input,.form-select {
+  width:100%;padding:10px 14px;
+  background:var(--bg-1);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text-100);
+  font-family:'Outfit',sans-serif;font-size:0.92rem;
+  transition:border-color var(--transition),box-shadow var(--transition);outline:none;
+}
+.form-input:focus,.form-select:focus {
+  border-color:var(--orange);
+  box-shadow:0 0 0 3px rgba(255,85,0,0.1);
+}
+.form-input[readonly] { opacity:0.6;cursor:not-allowed }
+.form-input::placeholder { color:var(--text-300) }
+.form-select {
+  cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23607080' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.form-row { display:flex;gap:12px;flex-wrap:wrap }
+.form-row .form-group { flex:1;min-width:140px }
+.form-check { display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem }
+.form-check input[type="checkbox"] { width:17px;height:17px;accent-color:var(--orange);cursor:pointer }
+textarea.form-input { resize:vertical;min-height:60px }
+
+.km-auto-hint {
+  font-size:0.76rem;color:var(--orange);margin-top:4px;
+  display:flex;align-items:center;gap:4px;
+}
+
+/* ══════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════ */
+.btn {
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 20px;border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif;font-size:0.875rem;font-weight:600;
+  border:none;cursor:pointer;transition:all var(--transition);
+  text-decoration:none;white-space:nowrap;
+}
+.btn-primary {
+  background:var(--orange);
+  color:#fff;
+  box-shadow:0 2px 12px rgba(255,85,0,0.25);
+}
+.btn-primary:hover {
+  background:#FF6A1A;
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(255,85,0,0.35);
+}
+.btn-secondary {
+  background:var(--bg-3);color:var(--text-200);
+  border:1px solid var(--border);
+}
+.btn-secondary:hover { border-color:rgba(255,85,0,0.4);color:var(--text-100) }
+.btn-danger  { background:var(--red-dim);color:var(--red);border:1px solid var(--red-border) }
+.btn-danger:hover  { background:rgba(239,68,68,0.18) }
+.btn-success { background:var(--green-dim);color:var(--green);border:1px solid var(--green-border) }
+.btn-success:hover { background:rgba(34,197,94,0.18) }
+.btn-sm { padding:7px 13px;font-size:0.8rem }
+.btn-group { display:flex;gap:8px;flex-wrap:wrap;margin-top:16px }
+.btn-icon {
+  width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius-xs);background:var(--bg-3);border:1px solid var(--border);
+  color:var(--text-300);cursor:pointer;transition:all var(--transition);font-size:0.9rem;
+}
+.btn-icon:hover { border-color:var(--orange);color:var(--orange) }
+
+/* ══════════════════════════════════════
+   BADGES
+══════════════════════════════════════ */
+.badge {
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:20px;font-size:0.7rem;font-weight:700;
+  letter-spacing:0.3px;
+}
+.badge-green  { background:var(--green-dim);color:var(--green);border:1px solid var(--green-border) }
+.badge-yellow { background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-border) }
+.badge-orange { background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn-border) }
+.badge-red    { background:var(--red-dim);color:var(--red);border:1px solid var(--red-border) }
+.badge-inactive { background:rgba(96,112,128,0.12);color:var(--text-300);border:1px solid rgba(96,112,128,0.25) }
+
+/* ══════════════════════════════════════
+   TABLE
+══════════════════════════════════════ */
+.table-wrap { overflow-x:auto;margin-top:12px;border-radius:var(--radius);border:1px solid var(--border) }
+table { width:100%;border-collapse:collapse;font-size:0.855rem }
+thead tr { background:var(--bg-3) }
+th { text-align:left;padding:11px 14px;color:var(--text-300);font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.8px }
+td { padding:11px 14px;border-top:1px solid var(--border-subtle);color:var(--text-200) }
+tr:hover td { background:rgba(255,255,255,0.02) }
+td b { color:var(--text-100);font-weight:500 }
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+.modal-overlay {
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);
+  z-index:200;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(6px);
+}
+.modal-overlay.show { display:flex }
+.modal {
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--radius-xl);width:100%;max-width:520px;
+  max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);
+}
+.modal-header {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px;border-bottom:1px solid var(--border-subtle);
+  position:sticky;top:0;background:var(--bg-2);z-index:1;
+}
+.modal-header h3 { font-size:1.05rem;font-weight:700 }
+.modal-close {
+  width:30px;height:30px;border-radius:8px;border:none;
+  background:var(--bg-3);color:var(--text-300);cursor:pointer;
+  font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  transition:all var(--transition);font-family:'Outfit',sans-serif;
+}
+.modal-close:hover { background:var(--red-dim);color:var(--red) }
+.modal-body { padding:22px 24px }
+.modal-footer { padding:16px 24px;border-top:1px solid var(--border-subtle);display:flex;gap:8px;justify-content:flex-end }
+
+/* ══════════════════════════════════════
+   TOAST NOTIFICATIONS
+══════════════════════════════════════ */
+.toast-container { position:fixed;top:76px;right:20px;z-index:300;display:flex;flex-direction:column;gap:8px }
+.toast {
+  padding:13px 18px;border-radius:var(--radius);font-size:0.855rem;
+  font-weight:500;animation:slideIn 0.3s ease;min-width:280px;max-width:380px;
+  box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;
+  border:1px solid transparent;
+}
+.toast-success { background:#052E16;color:var(--green);border-color:var(--green-border) }
+.toast-warning { background:#431407;color:var(--amber);border-color:var(--amber-border) }
+.toast-error   { background:#450A0A;color:var(--red);border-color:var(--red-border) }
+.toast-info    { background:#0A1628;color:#60A5FA;border-color:rgba(96,165,250,0.25) }
+@keyframes slideIn { from{transform:translateX(100px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* ══════════════════════════════════════
+   EMPTY STATES
+══════════════════════════════════════ */
+.empty-state { text-align:center;padding:64px 20px;color:var(--text-300) }
+.empty-state .empty-icon { font-size:3rem;margin-bottom:14px;opacity:0.35;display:block }
+.empty-state h3 { color:var(--text-200);font-weight:700;font-size:1rem;margin-bottom:6px }
+.empty-state p { font-size:0.85rem }
+
+/* ══════════════════════════════════════
+   FILE DROP
+══════════════════════════════════════ */
+.file-drop {
+  border:2px dashed var(--border);border-radius:var(--radius);
+  padding:32px 20px;text-align:center;cursor:pointer;
+  transition:all var(--transition);color:var(--text-300);
+  background:var(--bg-1);
+}
+.file-drop:hover { border-color:var(--orange);background:var(--orange-dim) }
+.file-drop.drag-over { border-color:var(--orange);background:var(--orange-dim) }
+.file-drop input { display:none }
+
+/* ══════════════════════════════════════
+   UTILITY
+══════════════════════════════════════ */
+.mono { font-family:'JetBrains Mono',monospace }
+.text-accent { color:var(--orange) }
+.text-muted  { color:var(--text-300) }
+.text-sm     { font-size:0.82rem }
+.mt-2 { margin-top:8px } .mt-4 { margin-top:16px }
+.mb-2 { margin-bottom:8px } .mb-4 { margin-bottom:16px }
+.flex-between { display:flex;justify-content:space-between;align-items:center }
+.gap-2 { gap:8px } .gap-4 { gap:16px }
+hr { border:none;border-top:1px solid var(--border-subtle);margin:16px 0 }
+
+/* ══════════════════════════════════════
+   BIKE DETAIL MODAL
+══════════════════════════════════════ */
+.modal-wide { max-width:720px }
+.bike-detail-hero {
+  background:linear-gradient(135deg,var(--bg-3) 0%,var(--bg-2) 100%);
+  border-bottom:1px solid var(--border-subtle);
+  padding:24px 24px 20px;
+  position:relative;overflow:hidden;
+}
+.bike-detail-hero::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--orange),#FF8C00,transparent);
+}
+.bike-detail-hero::after {
+  content:'🚴';position:absolute;right:24px;bottom:-4px;
+  font-size:5rem;opacity:0.06;line-height:1;pointer-events:none;
+}
+.bike-detail-name {
+  font-size:1.5rem;font-weight:900;letter-spacing:-0.5px;margin-bottom:4px;
+}
+.bike-detail-sub { font-size:0.82rem;color:var(--text-300) }
+
+.bike-stat-strip {
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+  gap:1px;background:var(--border-subtle);
+  border-bottom:1px solid var(--border-subtle);
+}
+.bike-stat-item {
+  background:var(--bg-2);padding:14px 16px;text-align:center;
+}
+.bike-stat-item .bsi-val {
+  font-size:1.2rem;font-weight:800;font-family:'JetBrains Mono',monospace;
+  color:var(--text-100);letter-spacing:-0.5px;
+}
+.bike-stat-item .bsi-val.accent { color:var(--orange) }
+.bike-stat-item .bsi-lbl {
+  font-size:0.68rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:0.8px;color:var(--text-300);margin-top:3px;
+}
+
+.detail-section { padding:16px 24px;border-bottom:1px solid var(--border-subtle) }
+.detail-section:last-of-type { border-bottom:none }
+.detail-section-title {
+  font-size:0.72rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;color:var(--text-300);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.detail-section-title span { font-size:0.9rem }
+
+.comp-row {
+  display:flex;align-items:center;gap:12px;
+  padding:9px 0;border-bottom:1px solid var(--border-subtle);
+}
+.comp-row:last-child { border-bottom:none }
+.comp-row-status {
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.comp-row-status.green  { background:var(--green) }
+.comp-row-status.yellow { background:var(--amber) }
+.comp-row-status.orange { background:var(--warn) }
+.comp-row-status.red    { background:var(--red) }
+.comp-row-status.paused { background:var(--text-300) }
+.comp-row-info { flex:1;min-width:0 }
+.comp-row-name { font-size:0.875rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+.comp-row-type { font-size:0.72rem;color:var(--text-300) }
+.comp-row-bar { width:90px;flex-shrink:0 }
+.comp-row-pct { font-size:0.75rem;font-family:'JetBrains Mono',monospace;color:var(--text-300);text-align:right;width:38px;flex-shrink:0 }
+
+.act-row {
+  display:flex;align-items:center;gap:12px;
+  padding:8px 0;border-bottom:1px solid var(--border-subtle);
+  font-size:0.845rem;
+}
+.act-row:last-child { border-bottom:none }
+.act-row-date { color:var(--text-300);font-size:0.78rem;width:72px;flex-shrink:0 }
+.act-row-km { font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--orange);width:72px;text-align:right;flex-shrink:0 }
+.act-row-notes { color:var(--text-300);font-size:0.78rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+
+/* Make bike cards feel clickable */
+.bike-card { cursor:pointer }
+.bike-card:active { transform:scale(0.99) }
+
+/* ══════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════ */
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.fade-up { animation:fadeUp 0.35s ease forwards }
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media(max-width:768px) {
+  .grid-2,.grid-3 { grid-template-columns:1fr }
+  .grid-4 { grid-template-columns:1fr 1fr }
+  .header-stats { display:none }
+  .main { padding:16px 14px }
+  .card { padding:16px }
+  .modal { max-width:100%;border-radius:var(--radius-lg) }
+  .form-row { flex-direction:column }
+  .form-row .form-group { min-width:100% }
+  .dash-stats { grid-template-columns:1fr 1fr }
+}
+@media(max-width:480px) {
+  .grid-4 { grid-template-columns:1fr }
+  .nav-tab { padding:12px 12px;font-size:0.8rem }
+  .dash-stats { grid-template-columns:1fr 1fr }
+  .section-title { font-size:1.1rem }
+}
+
+/* backup hidden */
+#backupFileInput { display:none }
+</style>
+</head>
+<body>
+
+<!-- ═══════ HEADER ═══════ -->
+<header class="app-header">
+  <div class="header-stripe"></div>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="6" cy="16" r="3.5" stroke="white" stroke-width="2"/>
+          <circle cx="18" cy="16" r="3.5" stroke="white" stroke-width="2"/>
+          <path d="M6 16L10 8L14 12L17 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 8H18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-wordmark">Bike<span>Wear</span> Pro</div>
+        <div class="logo-sub">Manutenção & Performance</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-stats" id="headerStats"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════ NAV ═══════ -->
+<nav class="nav-wrap">
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-page="dashboard">
+      <span class="tab-icon">⚡</span> Dashboard
+    </button>
+    <button class="nav-tab" data-page="bikes">
+      <span class="tab-icon">🚴</span> Bikes
+    </button>
+    <button class="nav-tab" data-page="components">
+      <span class="tab-icon">🔧</span> Componentes
+    </button>
+    <button class="nav-tab" data-page="activities">
+      <span class="tab-icon">📍</span> Atividades
+    </button>
+    <button class="nav-tab" data-page="history">
+      <span class="tab-icon">📋</span> Histórico
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════ TOAST ═══════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════ Hidden backup input ═══════ -->
+<input type="file" id="backupFileInput" accept=".json" onchange="handleBackupRestore(event)">
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="main">
+
+  <!-- ──── DASHBOARD ──── -->
+  <div class="page active" id="page-dashboard">
+    <div id="alertsBanner"></div>
+    <div class="dash-stats" id="dashStats"></div>
+    <div class="section-hd">
+      <div class="section-title">
+        Painel Geral
+        <span class="count" id="dashBikeCount">0 bikes</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-secondary" onclick="exportBackup()">💾 Backup</button>
+        <button class="btn btn-sm btn-secondary" onclick="document.getElementById('backupFileInput').click()">📥 Restaurar</button>
+      </div>
+    </div>
+    <div id="dashboardContent"></div>
+  </div>
+
+  <!-- ──── BIKES ──── -->
+  <div class="page" id="page-bikes">
+    <div class="section-hd">
+      <div class="section-title">Minhas Bicicletas</div>
+      <button class="btn btn-primary" onclick="openModal('bikeModal')">+ Nova Bike</button>
+    </div>
+    <div class="grid-2" id="bikesList"></div>
+  </div>
+
+  <!-- ──── COMPONENTS ──── -->
+  <div class="page" id="page-components">
+    <div class="section-hd">
+      <div class="section-title">Componentes</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select class="form-select" id="compBikeFilter" onchange="renderComponents()" style="width:auto;min-width:180px">
+          <option value="">Todas as bikes</option>
+        </select>
+        <button class="btn btn-primary" onclick="openAddComponent()">+ Componente</button>
+      </div>
+    </div>
+    <div class="grid-3" id="componentsList"></div>
+  </div>
+
+  <!-- ──── ACTIVITIES ──── -->
+  <div class="page" id="page-activities">
+    <div class="section-hd">
+      <div class="section-title">Atividades</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="openModal('activityModal')">+ Pedal Manual</button>
+        <button class="btn btn-secondary" onclick="openModal('gpxModal')">📂 Importar GPX</button>
+      </div>
+    </div>
+    <select class="form-select mb-4" id="actBikeFilter" onchange="renderActivities()" style="width:auto;min-width:180px">
+      <option value="">Todas as bikes</option>
+    </select>
+    <div id="activitiesList"></div>
+  </div>
+
+  <!-- ──── HISTORY ──── -->
+  <div class="page" id="page-history">
+    <div class="section-hd">
+      <div class="section-title">Histórico de Trocas</div>
+      <select class="form-select" id="histBikeFilter" onchange="renderHistory()" style="width:auto;min-width:180px">
+        <option value="">Todas as bikes</option>
+      </select>
+    </div>
+    <div id="historyList"></div>
+  </div>
+
+</main>
+
+<!-- ═══════ MODALS ═══════ -->
+
+<!-- Modal: Bike Detail -->
+<div class="modal-overlay" id="bikeDetailModal">
+  <div class="modal modal-wide">
+    <div class="bike-detail-hero" id="bikeDetailHero">
+      <button class="modal-close" onclick="closeModal('bikeDetailModal')" style="position:absolute;top:16px;right:16px">✕</button>
+      <div class="bike-detail-name" id="bikeDetailName"></div>
+      <div class="bike-detail-sub" id="bikeDetailSub"></div>
+    </div>
+    <div class="bike-stat-strip" id="bikeDetailStats"></div>
+    <div id="bikeDetailBody" style="max-height:60vh;overflow-y:auto"></div>
+    <div class="modal-footer" id="bikeDetailFooter"></div>
+  </div>
+</div>
+
+<!-- Modal: Nova Bike -->
+<div class="modal-overlay" id="bikeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🚴 Nova Bicicleta</h3>
+      <button class="modal-close" onclick="closeModal('bikeModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nome da Bike</label>
+        <input class="form-input" id="bikeName" placeholder="Ex: Sense Impact Race 2023">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data de Cadastro</label>
+          <input class="form-input" id="bikeDate" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">KM Inicial</label>
+          <input class="form-input" id="bikeKm" type="number" step="0.1" placeholder="0" value="0" min="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('bikeModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBike()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Novo Componente -->
+<div class="modal-overlay" id="componentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="compModalTitle">🔧 Novo Componente</h3>
+      <button class="modal-close" onclick="closeModal('componentModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Bicicleta</label>
+        <select class="form-select" id="compBike" onchange="onCompBikeChange()"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" id="compType">
+            <option value="cassete">Cassete</option>
+            <option value="corrente">Corrente</option>
+            <option value="coroa">Coroa</option>
+            <option value="pneu_dianteiro">Pneu Dianteiro</option>
+            <option value="pneu_traseiro">Pneu Traseiro</option>
+            <option value="pastilha_freio">Pastilha de Freio</option>
+            <option value="disco_freio">Disco de Freio</option>
+            <option value="suspensao">Suspensão</option>
+            <option value="selante">Selante Tubeless</option>
+            <option value="cabos">Cabos / Conduítes</option>
+            <option value="fita_guidao">Fita de Guidão</option>
+            <option value="pedal">Pedal</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input class="form-input" id="compName" placeholder="Ex: Cassete Shimano 12v">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data de Instalação</label>
+          <input class="form-input" id="compDate" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">KM na Instalação</label>
+          <input class="form-input" id="compKmInstall" type="number" step="0.1" readonly>
+          <div class="km-auto-hint" id="compKmHint">⚡ KM detectado automaticamente</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">💰 Preço pago (R$) — opcional</label>
+        <input class="form-input" id="compPrice" type="number" step="0.01" min="0" placeholder="0,00">
+      </div>
+      <hr>
+      <p class="text-sm text-muted mb-2">Controle de desgaste:</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-check"><input type="checkbox" id="compCtrlKm" checked> Por KM</label>
+          <input class="form-input mt-2" id="compLifeKm" type="number" placeholder="Vida útil (km)" value="3000" min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-check"><input type="checkbox" id="compCtrlTime"> Por Tempo</label>
+          <input class="form-input mt-2" id="compLifeMonths" type="number" placeholder="Meses" value="12" min="1">
+        </div>
+      </div>
+      <div id="rotationSection" style="display:none">
+        <hr>
+        <p class="text-sm text-muted mb-2">🔁 Rodízio de correntes:</p>
+        <div class="form-group">
+          <label class="form-label">Grupo de rodízio (opcional)</label>
+          <input class="form-input" id="compGroupId" placeholder="Ex: rodizio-correntes-mtb">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('componentModal')">Cancelar</button>
+      <button class="btn btn-primary" id="compSaveBtn" onclick="saveComponent()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nova Atividade -->
+<div class="modal-overlay" id="activityModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📍 Registrar Pedal</h3>
+      <button class="modal-close" onclick="closeModal('activityModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Bicicleta</label>
+        <select class="form-select" id="actBike"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input class="form-input" id="actDate" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Distância (km)</label>
+          <input class="form-input" id="actKm" type="number" step="0.01" placeholder="0" min="0.01">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Observações (opcional)</label>
+        <textarea class="form-input" id="actNotes" rows="2" placeholder="Ex: Trilha na Serra da Cantareira"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('activityModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveActivity()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: GPX Import -->
+<div class="modal-overlay" id="gpxModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📂 Importar GPX</h3>
+      <button class="modal-close" onclick="closeModal('gpxModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Bicicleta</label>
+        <select class="form-select" id="gpxBike"></select>
+      </div>
+      <div class="file-drop" id="gpxDrop" onclick="document.getElementById('gpxFile').click()">
+        <input type="file" id="gpxFile" accept=".gpx" onchange="handleGpxFile(event)">
+        <div style="font-size:2rem;margin-bottom:8px">📂</div>
+        <div style="font-weight:600">Clique ou arraste um arquivo .gpx</div>
+        <div class="text-sm text-muted mt-2" id="gpxInfo"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('gpxModal')">Cancelar</button>
+      <button class="btn btn-primary" id="gpxSaveBtn" onclick="saveGpxActivity()" disabled>Importar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Trocar Componente -->
+<div class="modal-overlay" id="replaceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🔁 Trocar Componente</h3>
+      <button class="modal-close" onclick="closeModal('replaceModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="mb-4" id="replaceInfo" style="font-size:0.9rem;color:var(--text-200)"></p>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data da Troca</label>
+          <input class="form-input" id="replaceDate" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">KM Atual da Bike</label>
+          <input class="form-input" id="replaceKm" type="number" step="0.1" readonly>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Novo Nome (opcional)</label>
+        <input class="form-input" id="replaceNewName" placeholder="Deixe vazio para manter o atual">
+      </div>
+      <div class="form-group">
+        <label class="form-label">💰 Preço do novo (R$) — opcional</label>
+        <input class="form-input" id="replacePrice" type="number" step="0.01" min="0" placeholder="0,00">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('replaceModal')">Cancelar</button>
+      <button class="btn btn-success" onclick="confirmReplace()">Confirmar Troca</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ═══════════════════════════════════════════════
+   BikeWear Pro — Controle de Manutenção v3
+   Sistema 100% client-side com localStorage
+   ═══════════════════════════════════════════════ */
+
+// ── DATA STORE ──
+const STORAGE_KEY = 'bikewear_pro_data';
+
+function getStore() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) { console.error('Erro ao ler dados:', e); }
+  return { bikes: [], components: [], activities: [], replacements: [] };
+}
+
+function saveStore(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) { console.error('Erro ao salvar dados:', e); }
+}
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
+
+// ── TOAST NOTIFICATIONS ──
+function toast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const icons = { success:'✅', warning:'⚠️', error:'🚨', info:'ℹ️' };
+  t.innerHTML = `<span>${icons[type]||''}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(50px)'; setTimeout(()=>t.remove(),300); }, 4000);
+}
+
+// ── MODAL HELPERS ──
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+  document.body.style.overflow='';
+}
+
+// ── NAVIGATION ──
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('page-'+tab.dataset.page).classList.add('active');
+    refreshAll();
+  });
+});
+
+function navigateTo(page) {
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.page === page);
+  });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  refreshAll();
+}
+
+// ── FORMAT HELPERS ──
+function fmtKm(km) { return parseFloat(km||0).toFixed(1).replace('.', ','); }
+function fmtBRL(v) { return 'R$ ' + parseFloat(v||0).toFixed(2).replace('.',','); }
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('pt-BR');
+}
+function fmtDateFull(d) {
+  if (!d) return '—';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('pt-BR', {day:'2-digit',month:'short',year:'numeric'});
+}
+function fmtMonthYear(date) {
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return months[date.getMonth()] + '/' + date.getFullYear();
+}
+function today() { return new Date().toISOString().split('T')[0]; }
+
+const COMP_TYPES = {
+  cassete:'Cassete', corrente:'Corrente', coroa:'Coroa',
+  pneu_dianteiro:'Pneu Dianteiro', pneu_traseiro:'Pneu Traseiro',
+  pastilha_freio:'Pastilha de Freio', disco_freio:'Disco de Freio',
+  suspensao:'Suspensão', selante:'Selante Tubeless',
+  cabos:'Cabos / Conduítes', fita_guidao:'Fita de Guidão',
+  pedal:'Pedal', outro:'Outro'
+};
+
+const DEFAULT_LIFE = {
+  cassete: {km:8000,months:0}, corrente:{km:3000,months:0}, coroa:{km:10000,months:0},
+  pneu_dianteiro:{km:5000,months:0}, pneu_traseiro:{km:4000,months:0},
+  pastilha_freio:{km:2000,months:0}, disco_freio:{km:10000,months:0},
+  suspensao:{km:5000,months:12}, selante:{km:0,months:6},
+  cabos:{km:8000,months:18}, fita_guidao:{km:5000,months:12},
+  pedal:{km:15000,months:0}, outro:{km:5000,months:12}
+};
+
+// ── BIKE CRUD ──
+function saveBike() {
+  const name = document.getElementById('bikeName').value.trim();
+  const date = document.getElementById('bikeDate').value || today();
+  const km = Math.max(0, parseFloat(document.getElementById('bikeKm').value) || 0);
+  if (!name) { toast('Informe o nome da bike','warning'); return; }
+  const data = getStore();
+  data.bikes.push({ id:genId(), name, date, initialKm:km });
+  saveStore(data);
+  closeModal('bikeModal');
+  document.getElementById('bikeName').value='';
+  document.getElementById('bikeKm').value='0';
+  toast(`${name} adicionada!`,'success');
+  refreshAll();
+}
+
+function deleteBike(id) {
+  if (!confirm('Excluir esta bicicleta e todos os dados relacionados?')) return;
+  const data = getStore();
+  const bike = data.bikes.find(b=>b.id===id);
+  data.bikes = data.bikes.filter(b=>b.id!==id);
+  data.components = data.components.filter(c=>c.bikeId!==id);
+  data.activities = data.activities.filter(a=>a.bikeId!==id);
+  data.replacements = data.replacements.filter(r=>r.bikeId!==id);
+  saveStore(data);
+  toast(`${bike?bike.name:'Bike'} removida`,'info');
+  refreshAll();
+}
+
+function getBikeKm(bikeId) {
+  const data = getStore();
+  const bike = data.bikes.find(b=>b.id===bikeId);
+  if (!bike) return 0;
+  const actKm = data.activities.filter(a=>a.bikeId===bikeId).reduce((s,a)=>s+parseFloat(a.km||0),0);
+  return (parseFloat(bike.initialKm)||0) + actKm;
+}
+
+function getLastActivity(bikeId) {
+  const data = getStore();
+  const acts = data.activities.filter(a=>a.bikeId===bikeId).sort((a,b)=>b.date.localeCompare(a.date));
+  return acts[0] || null;
+}
+
+function getMonthlyAverage(bikeId) {
+  const data = getStore();
+  const now = new Date();
+  const d90 = new Date(now);
+  d90.setDate(d90.getDate() - 90);
+  const d90str = d90.toISOString().split('T')[0];
+  const recent = data.activities.filter(a => a.bikeId === bikeId && a.date >= d90str);
+  const totalKm = recent.reduce((s, a) => s + parseFloat(a.km || 0), 0);
+  if (recent.length === 0) return 0;
+  const oldest = recent.reduce((min, a) => a.date < min ? a.date : min, recent[0].date);
+  const daysRange = Math.max(1, Math.floor((now - new Date(oldest + 'T00:00:00')) / (1000*60*60*24)));
+  return (totalKm / daysRange) * 30.44;
+}
+
+function getForecastDate(kmRemaining, monthlyAvg) {
+  if (!monthlyAvg || monthlyAvg <= 0 || kmRemaining === null || kmRemaining <= 0) return null;
+  const monthsLeft = kmRemaining / monthlyAvg;
+  const forecast = new Date();
+  forecast.setDate(forecast.getDate() + Math.round(monthsLeft * 30.44));
+  return forecast;
+}
+
+function getDashStats() {
+  const data = getStore();
+  const now = new Date();
+  const d30 = new Date(now); d30.setDate(d30.getDate() - 30);
+  const d60 = new Date(now); d60.setDate(d60.getDate() - 60);
+  const d30str = d30.toISOString().split('T')[0];
+  const d60str = d60.toISOString().split('T')[0];
+
+  const last30 = data.activities.filter(a => a.date >= d30str).reduce((s,a) => s + parseFloat(a.km||0), 0);
+  const prev30 = data.activities.filter(a => a.date >= d60str && a.date < d30str).reduce((s,a) => s + parseFloat(a.km||0), 0);
+  const totalKm = data.bikes.reduce((s,b) => s + getBikeKm(b.id), 0);
+  const totalActs = data.activities.length;
+  const avgMonthly = data.bikes.reduce((s,b) => s + getMonthlyAverage(b.id), 0);
+  const trend = last30 - prev30;
+
+  return { last30, prev30, totalKm, totalActs, avgMonthly, trend };
+}
+
+// ── COMPONENT CRUD ──
+function onCompBikeChange() {
+  const bikeId = document.getElementById('compBike').value;
+  const kmField = document.getElementById('compKmInstall');
+  const hint = document.getElementById('compKmHint');
+  if (bikeId) {
+    const km = getBikeKm(bikeId);
+    kmField.value = km.toFixed(1);
+    hint.textContent = `⚡ KM atual detectado: ${fmtKm(km)} km`;
+    hint.style.display = 'flex';
+  } else {
+    kmField.value = '0';
+    hint.style.display = 'none';
+  }
+}
+
+function onCompTypeChange() {
+  const type = document.getElementById('compType').value;
+  document.getElementById('rotationSection').style.display = type === 'corrente' ? 'block' : 'none';
+  updateDefaultLife();
+}
+
+function openAddComponent() {
+  document.getElementById('compModalTitle').textContent = '🔧 Novo Componente';
+  document.getElementById('compSaveBtn').textContent = 'Salvar';
+  document.getElementById('compSaveBtn').onclick = saveComponent;
+  document.getElementById('compName').value = '';
+  document.getElementById('compDate').value = today();
+  document.getElementById('compKmInstall').value = '0';
+  document.getElementById('compPrice').value = '';
+  document.getElementById('compGroupId').value = '';
+  document.getElementById('compCtrlKm').checked = true;
+  document.getElementById('compCtrlTime').checked = false;
+  const selType = document.getElementById('compType');
+  selType.value = 'corrente';
+  onCompTypeChange();
+  populateBikeSelects();
+  setTimeout(onCompBikeChange, 50);
+  openModal('componentModal');
+}
+
+function updateDefaultLife() {
+  const type = document.getElementById('compType').value;
+  const def = DEFAULT_LIFE[type] || {km:5000,months:12};
+  document.getElementById('compLifeKm').value = def.km || '';
+  document.getElementById('compLifeMonths').value = def.months || '';
+  document.getElementById('compCtrlKm').checked = def.km > 0;
+  document.getElementById('compCtrlTime').checked = def.months > 0;
+}
+document.getElementById('compType').addEventListener('change', onCompTypeChange);
+
+function saveComponent() {
+  const bikeId = document.getElementById('compBike').value;
+  const type = document.getElementById('compType').value;
+  const name = document.getElementById('compName').value.trim() || COMP_TYPES[type];
+  const date = document.getElementById('compDate').value || today();
+  const ctrlKm = document.getElementById('compCtrlKm').checked;
+  const ctrlTime = document.getElementById('compCtrlTime').checked;
+  const lifeKm = parseFloat(document.getElementById('compLifeKm').value) || 0;
+  const lifeMonths = parseFloat(document.getElementById('compLifeMonths').value) || 0;
+  const price = parseFloat(document.getElementById('compPrice').value) || 0;
+  const groupId = document.getElementById('compGroupId').value.trim();
+
+  if (!bikeId) { toast('Selecione uma bicicleta','warning'); return; }
+  if (!ctrlKm && !ctrlTime) { toast('Selecione ao menos um tipo de controle','warning'); return; }
+  if (ctrlKm && lifeKm <= 0) { toast('Vida útil em KM deve ser maior que zero','warning'); return; }
+  if (ctrlTime && lifeMonths <= 0) { toast('Vida útil em meses deve ser maior que zero','warning'); return; }
+
+  const kmInstall = getBikeKm(bikeId);
+  const data = getStore();
+  const newComp = {
+    id:genId(), bikeId, type, name, installDate:date,
+    kmAtInstall:kmInstall, ctrlKm, ctrlTime, lifeKm, lifeMonths,
+    price,
+    groupId: groupId || null,
+    active: true
+  };
+  data.components.push(newComp);
+  saveStore(data);
+  closeModal('componentModal');
+  toast(`${name} adicionado!`,'success');
+  refreshAll();
+}
+
+function deleteComponent(id) {
+  if (!confirm('Excluir este componente?')) return;
+  const data = getStore();
+  data.components = data.components.filter(c=>c.id!==id);
+  saveStore(data);
+  toast('Componente removido','info');
+  refreshAll();
+}
+
+function toggleRotation(compId) {
+  const data = getStore();
+  const comp = data.components.find(c => c.id === compId);
+  if (!comp || !comp.groupId) return;
+  data.components.forEach(c => {
+    if (c.groupId === comp.groupId && c.bikeId === comp.bikeId) {
+      c.active = false;
+    }
+  });
+  comp.active = true;
+  saveStore(data);
+  toast(`${comp.name} ativada no rodízio!`, 'success');
+  refreshAll();
+}
+
+// ── COMPONENT WEAR CALCULATION ──
+function calcWear(comp, bikeId) {
+  const bikeKm = getBikeKm(bikeId);
+  const kmSinceInstall = Math.max(0, bikeKm - (parseFloat(comp.kmAtInstall)||0));
+  const installDate = new Date(comp.installDate + 'T00:00:00');
+  const now = new Date();
+  const daysSinceInstall = Math.max(0, Math.floor((now - installDate)/(1000*60*60*24)));
+  const monthsSinceInstall = daysSinceInstall / 30.44;
+
+  let pctKm = 0, pctTime = 0, kmRemaining = null, timeRemaining = null;
+
+  if (comp.ctrlKm && comp.lifeKm > 0) {
+    pctKm = (kmSinceInstall / comp.lifeKm) * 100;
+    kmRemaining = Math.max(0, comp.lifeKm - kmSinceInstall);
+  }
+  if (comp.ctrlTime && comp.lifeMonths > 0) {
+    pctTime = (monthsSinceInstall / comp.lifeMonths) * 100;
+    const totalDays = comp.lifeMonths * 30.44;
+    timeRemaining = Math.max(0, totalDays - daysSinceInstall);
+  }
+
+  const maxPct = Math.max(pctKm, pctTime);
+  let status = 'green', statusLabel = 'Bom';
+  if (maxPct >= 100) { status = 'red'; statusLabel = 'Trocar!'; }
+  else if (maxPct >= 80) { status = 'orange'; statusLabel = 'Alerta'; }
+  else if (maxPct >= 50) { status = 'yellow'; statusLabel = 'Atenção'; }
+
+  const monthlyAvg = getMonthlyAverage(bikeId);
+  const forecastDate = comp.ctrlKm ? getForecastDate(kmRemaining, monthlyAvg) : null;
+
+  const price = parseFloat(comp.price) || 0;
+  const costPerKm = (price > 0 && kmSinceInstall > 0) ? (price / kmSinceInstall) : null;
+
+  let daysRemainingByKm = null;
+  if (kmRemaining !== null && monthlyAvg > 0) {
+    daysRemainingByKm = Math.round((kmRemaining / monthlyAvg) * 30.44);
+  }
+
+  return {
+    kmSinceInstall, daysSinceInstall, monthsSinceInstall,
+    pctKm, pctTime, maxPct, kmRemaining, timeRemaining,
+    status, statusLabel,
+    forecastDate, costPerKm, price, monthlyAvg, daysRemainingByKm
+  };
+}
+
+// ── COMPONENT REPLACEMENT ──
+let _replaceCompId = null;
+function openReplace(compId) {
+  _replaceCompId = compId;
+  const data = getStore();
+  const comp = data.components.find(c=>c.id===compId);
+  if (!comp) return;
+  const bike = data.bikes.find(b=>b.id===comp.bikeId);
+  const bikeKm = getBikeKm(comp.bikeId);
+  document.getElementById('replaceInfo').textContent = `Trocar "${comp.name}" da ${bike?bike.name:'—'}`;
+  document.getElementById('replaceDate').value = today();
+  document.getElementById('replaceKm').value = bikeKm.toFixed(1);
+  document.getElementById('replaceNewName').value = '';
+  document.getElementById('replacePrice').value = '';
+  openModal('replaceModal');
+}
+
+function confirmReplace() {
+  const data = getStore();
+  const comp = data.components.find(c=>c.id===_replaceCompId);
+  if (!comp) return;
+  const date = document.getElementById('replaceDate').value || today();
+  const km = parseFloat(document.getElementById('replaceKm').value) || 0;
+  const newName = document.getElementById('replaceNewName').value.trim();
+  const newPrice = parseFloat(document.getElementById('replacePrice').value) || 0;
+  const wear = calcWear(comp, comp.bikeId);
+
+  data.replacements.push({
+    id: genId(),
+    compId: comp.id,
+    bikeId: comp.bikeId,
+    compName: comp.name,
+    compType: comp.type,
+    date,
+    kmAtReplace: km,
+    kmUsed: wear.kmSinceInstall,
+    daysUsed: wear.daysSinceInstall,
+    price: wear.price || 0,
+    costPerKm: wear.costPerKm
+  });
+
+  comp.installDate = date;
+  comp.kmAtInstall = km;
+  if (newName) comp.name = newName;
+  comp.price = newPrice;
+
+  saveStore(data);
+  closeModal('replaceModal');
+  toast(`${comp.name} trocado com sucesso!`,'success');
+  refreshAll();
+}
+
+// ── ACTIVITY CRUD ──
+function saveActivity() {
+  const bikeId = document.getElementById('actBike').value;
+  const date = document.getElementById('actDate').value || today();
+  const km = parseFloat(document.getElementById('actKm').value) || 0;
+  const notes = document.getElementById('actNotes').value.trim();
+  if (!bikeId) { toast('Selecione uma bicicleta','warning'); return; }
+  if (km <= 0) { toast('Distância deve ser maior que zero','warning'); return; }
+  if (km > 500) { if(!confirm(`${fmtKm(km)} km em um pedal — tem certeza?`)) return; }
+  const data = getStore();
+  data.activities.push({ id:genId(), bikeId, date, km, notes, source:'manual' });
+  saveStore(data);
+  closeModal('activityModal');
+  document.getElementById('actKm').value='';
+  document.getElementById('actNotes').value='';
+  const bike = data.bikes.find(b=>b.id===bikeId);
+  toast(`${fmtKm(km)} km registrados para ${bike?bike.name:''}!`,'success');
+  checkAlertsAfterActivity(bikeId);
+  refreshAll();
+}
+
+function deleteActivity(id) {
+  if (!confirm('Excluir esta atividade?')) return;
+  const data = getStore();
+  data.activities = data.activities.filter(a=>a.id!==id);
+  saveStore(data);
+  toast('Atividade removida','info');
+  refreshAll();
+}
+
+// ── GPX PARSER ──
+let _gpxData = null;
+
+function handleGpxFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(ev.target.result, 'text/xml');
+      const points = [];
+      let nodes = xml.querySelectorAll('trkpt');
+      if (nodes.length === 0) nodes = xml.querySelectorAll('rtept');
+      if (nodes.length === 0) { toast('Nenhum ponto encontrado no GPX','warning'); return; }
+      nodes.forEach(n => {
+        const lat = parseFloat(n.getAttribute('lat'));
+        const lon = parseFloat(n.getAttribute('lon'));
+        if (!isNaN(lat) && !isNaN(lon)) points.push({lat,lon});
+      });
+      const dist = calcGpxDistance(points);
+      let gpxDate = today();
+      const timeEl = xml.querySelector('time');
+      if (timeEl) {
+        const dt = new Date(timeEl.textContent);
+        if (!isNaN(dt)) gpxDate = dt.toISOString().split('T')[0];
+      }
+      const trackName = xml.querySelector('name');
+      _gpxData = { km: dist, date: gpxDate, points: points.length, name: trackName ? trackName.textContent : file.name };
+      document.getElementById('gpxInfo').innerHTML =
+        `<b style="color:var(--orange)">${fmtKm(dist)} km</b> · ${points.length} pontos · ${fmtDate(gpxDate)}` +
+        (_gpxData.name ? `<br>${_gpxData.name}` : '');
+      document.getElementById('gpxSaveBtn').disabled = false;
+    } catch(err) {
+      toast('Erro ao processar GPX: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Drag & drop
+const gpxDrop = document.getElementById('gpxDrop');
+gpxDrop.addEventListener('dragover', e => { e.preventDefault(); gpxDrop.classList.add('drag-over'); });
+gpxDrop.addEventListener('dragleave', () => gpxDrop.classList.remove('drag-over'));
+gpxDrop.addEventListener('drop', e => {
+  e.preventDefault();
+  gpxDrop.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.name.endsWith('.gpx')) {
+    document.getElementById('gpxFile').files = e.dataTransfer.files;
+    handleGpxFile({ target: { files: [file] } });
+  }
+});
+
+function calcGpxDistance(points) {
+  let total = 0;
+  for (let i = 1; i < points.length; i++) {
+    total += haversine(points[i-1].lat, points[i-1].lon, points[i].lat, points[i].lon);
+  }
+  return total;
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function saveGpxActivity() {
+  if (!_gpxData) return;
+  const bikeId = document.getElementById('gpxBike').value;
+  if (!bikeId) { toast('Selecione uma bicicleta','warning'); return; }
+  const data = getStore();
+  data.activities.push({
+    id:genId(), bikeId, date:_gpxData.date,
+    km:_gpxData.km, notes:_gpxData.name||'GPX importado',
+    source:'gpx', points:_gpxData.points
+  });
+  saveStore(data);
+  closeModal('gpxModal');
+  _gpxData = null;
+  document.getElementById('gpxInfo').innerHTML = '';
+  document.getElementById('gpxSaveBtn').disabled = true;
+  document.getElementById('gpxFile').value = '';
+  const bike = data.bikes.find(b=>b.id===bikeId);
+  toast(`GPX importado para ${bike?bike.name:''}!`,'success');
+  checkAlertsAfterActivity(bikeId);
+  refreshAll();
+}
+
+function checkAlertsAfterActivity(bikeId) {
+  const data = getStore();
+  const comps = data.components.filter(c=>c.bikeId===bikeId && c.active !== false);
+  comps.forEach(comp => {
+    const w = calcWear(comp, bikeId);
+    if (w.maxPct >= 100) {
+      toast(`🚨 ${comp.name}: TROCA NECESSÁRIA!`, 'error');
+    } else if (w.maxPct >= 80) {
+      let extra = '';
+      if (w.daysRemainingByKm !== null && w.daysRemainingByKm < 30) {
+        extra = ` (~${w.daysRemainingByKm} dias restantes)`;
+      }
+      toast(`⚠️ ${comp.name}: ${Math.round(w.maxPct)}% usado${extra}`, 'warning');
+    } else if (w.daysRemainingByKm !== null && w.daysRemainingByKm <= 14) {
+      toast(`📅 ${comp.name}: troca estimada em ~${w.daysRemainingByKm} dias`, 'warning');
+    }
+  });
+}
+
+// ── BACKUP / RESTORE ──
+function exportBackup() {
+  const data = getStore();
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bikewear-backup-${today()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup exportado!', 'success');
+}
+
+function handleBackupRestore(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!imported.bikes || !Array.isArray(imported.bikes)) {
+        toast('Arquivo inválido: faltam dados de bikes', 'error'); return;
+      }
+      if (!imported.components || !imported.activities) {
+        toast('Arquivo inválido: estrutura incompleta', 'error'); return;
+      }
+      if (!confirm(`Restaurar backup?\n${imported.bikes.length} bike(s), ${imported.components.length} componente(s), ${imported.activities.length} atividade(s).\n\nIsso substituirá TODOS os dados atuais!`)) return;
+      saveStore(imported);
+      toast('Backup restaurado com sucesso!', 'success');
+      refreshAll();
+    } catch(err) {
+      toast('Erro ao ler backup: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ── POPULATE BIKE SELECTS ──
+function populateBikeSelects() {
+  const data = getStore();
+  const selects = ['compBike','actBike','gpxBike'];
+  selects.forEach(selId => {
+    const el = document.getElementById(selId);
+    if (!el) return;
+    el.innerHTML = '<option value="">Selecione...</option>';
+    data.bikes.forEach(b => {
+      el.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+    });
+  });
+  ['compBikeFilter','actBikeFilter','histBikeFilter'].forEach(selId => {
+    const el = document.getElementById(selId);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">Todas as bikes</option>';
+    data.bikes.forEach(b => {
+      el.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+    });
+    el.value = cur;
+  });
+}
+
+// ── ALERTS ──
+function getAllAlerts() {
+  const data = getStore();
+  const alerts = [];
+  data.components.forEach(comp => {
+    if (comp.groupId && comp.active === false) return;
+    const w = calcWear(comp, comp.bikeId);
+    const bike = data.bikes.find(b=>b.id===comp.bikeId);
+
+    const urgentByForecast = w.daysRemainingByKm !== null && w.daysRemainingByKm <= 30 && w.maxPct < 50;
+    const urgentByTime = w.timeRemaining !== null && w.timeRemaining <= 30 && w.maxPct < 50;
+
+    if (w.maxPct >= 50 || urgentByForecast || urgentByTime) {
+      let severity, message;
+      if (w.maxPct >= 100) {
+        severity = 'red';
+        message = `${comp.name} precisa ser trocado! (${Math.round(w.maxPct)}%)`;
+      } else if (w.maxPct >= 80) {
+        severity = 'orange';
+        const extra = w.daysRemainingByKm !== null ? ` · ~${w.daysRemainingByKm}d restantes` : '';
+        message = `${comp.name} em ${Math.round(w.maxPct)}%${extra}`;
+      } else if (urgentByForecast || urgentByTime) {
+        severity = 'orange';
+        const days = w.daysRemainingByKm || Math.round(w.timeRemaining || 0);
+        message = `${comp.name}: troca estimada em ~${days} dias`;
+      } else {
+        severity = 'yellow';
+        message = `${comp.name} em ${Math.round(w.maxPct)}% da vida útil`;
+      }
+      alerts.push({ comp, bike, wear: w, severity, message });
+    }
+  });
+  return alerts.sort((a,b) => b.wear.maxPct - a.wear.maxPct);
+}
+
+// ── RENDER: HEADER STATS ──
+function renderHeaderStats() {
+  const data = getStore();
+  const totalKm = data.bikes.reduce((s,b) => s + getBikeKm(b.id), 0);
+  const alerts = getAllAlerts().filter(a => a.severity === 'red' || a.severity === 'orange');
+  document.getElementById('headerStats').innerHTML = `
+    <div>Bikes: <b>${data.bikes.length}</b></div>
+    <div>KM Total: <b>${fmtKm(totalKm)}</b></div>
+    ${alerts.length ? `<div class="header-alert">⚠ <b>${alerts.length}</b> alerta${alerts.length>1?'s':''}</div>` : ''}
+  `;
+}
+
+// ── RENDER: DASHBOARD STATS ──
+function renderDashStats() {
+  const s = getDashStats();
+  const trendIcon = s.trend > 0 ? '📈' : s.trend < 0 ? '📉' : '➡️';
+  const trendClass = s.trend > 10 ? 'trend-up' : s.trend < -10 ? 'trend-down' : '';
+  const trendText = s.trend > 0 ? `+${fmtKm(s.trend)} km` : s.trend < 0 ? `${fmtKm(s.trend)} km` : 'Estável';
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="dash-stat-card fade-up">
+      <span class="stat-icon">🚴</span>
+      <div class="value">${fmtKm(s.last30)}</div>
+      <div class="label">KM — Últimos 30 dias</div>
+    </div>
+    <div class="dash-stat-card fade-up">
+      <span class="stat-icon">📊</span>
+      <div class="value">${fmtKm(s.avgMonthly)}</div>
+      <div class="label">Média Mensal</div>
+      <div class="sub">últimos 90 dias</div>
+    </div>
+    <div class="dash-stat-card ${trendClass} fade-up">
+      <span class="stat-icon">${trendIcon}</span>
+      <div class="value" style="font-size:1.4rem">${trendText}</div>
+      <div class="label">Tendência</div>
+      <div class="sub">vs mês anterior</div>
+    </div>
+    <div class="dash-stat-card fade-up">
+      <span class="stat-icon">⚡</span>
+      <div class="value">${s.totalActs}</div>
+      <div class="label">Atividades Total</div>
+      <div class="sub">${fmtKm(s.totalKm)} km acumulados</div>
+    </div>
+  `;
+}
+
+// ── RENDER: DASHBOARD ──
+function renderDashboard() {
+  const data = getStore();
+  const alerts = getAllAlerts();
+  document.getElementById('dashBikeCount').textContent = `${data.bikes.length} bike${data.bikes.length!==1?'s':''}`;
+
+  renderDashStats();
+
+  const critAlerts = alerts.filter(a => a.severity==='red' || a.severity==='orange');
+  const banner = document.getElementById('alertsBanner');
+  if (critAlerts.length > 0) {
+    banner.innerHTML = `<div class="alerts-banner fade-up">
+      <h3>⚠ Alertas de Manutenção (${critAlerts.length})</h3>
+      ${critAlerts.map(a => `
+        <div class="alert-item">
+          <div class="alert-dot ${a.severity}"></div>
+          <span><b>${a.bike?a.bike.name:''}</b> — ${a.message}</span>
+          <button class="btn btn-sm btn-success" onclick="openReplace('${a.comp.id}')" style="margin-left:auto">Trocar</button>
+        </div>
+      `).join('')}
+    </div>`;
+  } else {
+    banner.innerHTML = '';
+  }
+
+  const dc = document.getElementById('dashboardContent');
+  if (data.bikes.length === 0) {
+    dc.innerHTML = `<div class="empty-state">
+      <span class="empty-icon">🚴</span>
+      <h3>Nenhuma bicicleta cadastrada</h3>
+      <p>Adicione sua primeira bike para começar!</p>
+      <button class="btn btn-primary mt-4" onclick="openModal('bikeModal')">+ Adicionar Bike</button>
+    </div>`;
+    return;
+  }
+
+  dc.innerHTML = data.bikes.map(bike => {
+    const km = getBikeKm(bike.id);
+    const last = getLastActivity(bike.id);
+    const comps = data.components.filter(c=>c.bikeId===bike.id);
+    const bikeAlerts = alerts.filter(a=>a.comp.bikeId===bike.id);
+
+    return `<div class="card fade-up" style="cursor:pointer" onclick="openBikeDetail('${bike.id}')">
+      <div class="flex-between" style="flex-wrap:wrap;gap:8px;margin-bottom:14px">
+        <div>
+          <h3 style="font-size:1.1rem;font-weight:800;letter-spacing:-0.3px;margin-bottom:4px">${bike.name}</h3>
+          <div class="text-sm" style="color:var(--text-300)">
+            Desde ${fmtDate(bike.date)} ·
+            <span class="mono text-accent" style="font-weight:700">${fmtKm(km)} km</span>
+            ${last ? ` · Último pedal: ${fmtDate(last.date)}` : ''}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+          <button class="btn btn-sm btn-primary" onclick="document.getElementById('actBike').value='${bike.id}';document.getElementById('actDate').value=today();openModal('activityModal')">+ Pedal</button>
+          <button class="btn btn-sm btn-secondary" onclick="document.getElementById('compBike').value='${bike.id}';openAddComponent()">+ Comp</button>
+        </div>
+      </div>
+      ${bikeAlerts.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${bikeAlerts.map(a=>`<span class="badge badge-${a.severity}">${a.comp.name} ${Math.round(a.wear.maxPct)}%</span>`).join('')}</div>` : ''}
+      ${comps.length > 0 ? `<div class="grid-3">${comps.map(comp => {
+        const w = calcWear(comp, bike.id);
+        return renderCompMini(comp, w);
+      }).join('')}</div>` : '<p class="text-sm text-muted">Nenhum componente cadastrado.</p>'}
+      <div style="margin-top:12px;font-size:0.76rem;color:var(--text-300);display:flex;align-items:center;gap:4px;opacity:0.6">
+        <span>👆</span> Clique para ver detalhes completos
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCompMini(comp, w) {
+  const pct = Math.min(w.maxPct, 100);
+  const isPaused = comp.groupId && comp.active === false;
+
+  let forecastHtml = '';
+  if (w.forecastDate && !isPaused) {
+    forecastHtml = `<div class="comp-forecast">📅 Troca prevista: <b>${fmtMonthYear(w.forecastDate)}</b></div>`;
+  }
+
+  let costHtml = '';
+  if (w.price > 0 && !isPaused) {
+    costHtml = `<div class="comp-cost">💰 ${fmtBRL(w.price)}${w.costPerKm !== null ? ` · ${fmtBRL(w.costPerKm)}/km` : ''}</div>`;
+  }
+
+  let rotationBtn = '';
+  if (comp.groupId && !comp.active) {
+    rotationBtn = `<button class="btn-icon" title="Ativar no rodízio" onclick="toggleRotation('${comp.id}')" style="color:var(--green)">▶</button>`;
+  }
+
+  let daysInfo = '';
+  if (w.daysRemainingByKm !== null && !isPaused) {
+    daysInfo = `<div class="comp-stat text-sm">Prev.: <b class="mono">~${w.daysRemainingByKm}d</b></div>`;
+  }
+
+  return `<div class="comp-card ${isPaused ? 'paused' : 'status-'+w.status}">
+    <div class="comp-header">
+      <div>
+        <div class="comp-name">${comp.name}</div>
+        <div class="comp-type">${COMP_TYPES[comp.type]||comp.type}${isPaused ? ' · ⏸' : ''}</div>
+      </div>
+      ${isPaused ? '<span class="badge badge-inactive">Inativo</span>' : `<span class="badge badge-${w.status}">${w.statusLabel}</span>`}
+    </div>
+    ${!isPaused ? `<div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill ${w.status}" style="width:${Math.min(pct,100)}%"></div></div>
+      <div class="progress-label">
+        <span>${Math.round(pct)}%</span>
+        ${comp.ctrlKm && comp.lifeKm > 0 ? `<span>${fmtKm(w.kmSinceInstall)}/${fmtKm(comp.lifeKm)} km</span>` : ''}
+      </div>
+    </div>` : ''}
+    ${!isPaused && comp.ctrlKm && w.kmRemaining !== null ? `<div class="comp-stat text-sm">Restam: <b class="mono">${fmtKm(w.kmRemaining)} km</b></div>` : ''}
+    ${!isPaused && comp.ctrlTime && w.timeRemaining !== null ? `<div class="comp-stat text-sm">Tempo: <b class="mono">${Math.round(w.timeRemaining)} dias</b></div>` : ''}
+    ${!isPaused ? daysInfo : ''}
+    ${forecastHtml}
+    ${costHtml}
+    <div class="comp-actions">
+      ${rotationBtn}
+      <button class="btn-icon" title="Trocar" onclick="openReplace('${comp.id}')">🔁</button>
+      <button class="btn-icon" title="Excluir" onclick="deleteComponent('${comp.id}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+// ── RENDER: BIKES ──
+function renderBikes() {
+  const data = getStore();
+  const el = document.getElementById('bikesList');
+  if (data.bikes.length === 0) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <span class="empty-icon">🚴</span>
+      <h3>Sem bicicletas</h3>
+      <p>Cadastre sua primeira bike!</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML = data.bikes.map(bike => {
+    const km = getBikeKm(bike.id);
+    const last = getLastActivity(bike.id);
+    const compCount = data.components.filter(c=>c.bikeId===bike.id).length;
+    const actCount = data.activities.filter(a=>a.bikeId===bike.id).length;
+    const alerts = getAllAlerts().filter(a=>a.comp.bikeId===bike.id);
+    const avg = getMonthlyAverage(bike.id);
+
+    return `<div class="bike-card fade-up" onclick="openBikeDetail('${bike.id}')">
+      <div class="bike-top-bar"></div>
+      <div class="flex-between" style="align-items:flex-start">
+        <div>
+          <div class="bike-name">${bike.name}</div>
+          <div class="bike-meta">
+            <span>📅 ${fmtDate(bike.date)}</span>
+            <span class="bike-km">${fmtKm(km)} km</span>
+            <span>🔧 <b>${compCount}</b></span>
+            <span>📍 <b>${actCount}</b> pedais</span>
+          </div>
+          ${last ? `<div class="text-sm text-muted mt-2">Último pedal: ${fmtDate(last.date)} — ${fmtKm(last.km)} km</div>` : ''}
+          ${avg > 0 ? `<div class="text-sm mt-2" style="color:var(--amber)">📊 ${fmtKm(avg)} km/mês</div>` : ''}
+        </div>
+        <div onclick="event.stopPropagation()">
+          <button class="btn-icon" onclick="deleteBike('${bike.id}')" title="Excluir" style="color:var(--red);border-color:var(--red-border)">🗑</button>
+        </div>
+      </div>
+      ${alerts.length ? `<div class="bike-alerts">${alerts.map(a=>`<span class="badge badge-${a.severity}">${a.comp.name} ${Math.round(a.wear.maxPct)}%</span>`).join('')}</div>` : ''}
+      <div style="margin-top:10px;font-size:0.74rem;color:var(--text-300);display:flex;align-items:center;gap:4px;opacity:0.5">
+        <span>👆</span> Toque para detalhes
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER: COMPONENTS ──
+function renderComponents() {
+  const data = getStore();
+  const filter = document.getElementById('compBikeFilter').value;
+  let comps = data.components;
+  if (filter) comps = comps.filter(c=>c.bikeId===filter);
+  const el = document.getElementById('componentsList');
+  if (comps.length === 0) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <span class="empty-icon">🔧</span>
+      <h3>Sem componentes</h3>
+      <p>${filter?'Nenhum componente para esta bike':'Adicione componentes às suas bikes!'}</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML = comps.map(comp => {
+    const w = calcWear(comp, comp.bikeId);
+    const bike = data.bikes.find(b=>b.id===comp.bikeId);
+    const pct = Math.min(w.maxPct, 100);
+    const isPaused = comp.groupId && comp.active === false;
+
+    let rotationBtn = '';
+    if (comp.groupId && !comp.active) {
+      rotationBtn = `<button class="btn btn-sm btn-secondary" onclick="toggleRotation('${comp.id}')">▶ Ativar</button>`;
+    } else if (comp.groupId && comp.active) {
+      rotationBtn = `<span class="badge badge-green">🔄 Ativa</span>`;
+    }
+
+    let forecastHtml = '';
+    if (w.forecastDate && !isPaused) {
+      forecastHtml = `<div class="comp-forecast">📅 Troca prevista: <b>${fmtMonthYear(w.forecastDate)}</b>${w.daysRemainingByKm !== null ? ` (~${w.daysRemainingByKm}d)` : ''}</div>`;
+    }
+
+    let costHtml = '';
+    if (w.price > 0) {
+      costHtml = `<div class="comp-cost">💰 ${fmtBRL(w.price)}${w.costPerKm !== null ? ` · ${fmtBRL(w.costPerKm)}/km` : ''}</div>`;
+    }
+
+    return `<div class="comp-card ${isPaused ? 'paused' : 'status-'+w.status} fade-up">
+      <div class="comp-header">
+        <div>
+          <div class="comp-name">${comp.name}</div>
+          <div class="comp-type">${COMP_TYPES[comp.type]||comp.type} · ${bike?bike.name:'—'}${isPaused ? ' · ⏸' : ''}</div>
+        </div>
+        ${isPaused ? '<span class="badge badge-inactive">Inativo</span>' : `<span class="badge badge-${w.status}">${w.statusLabel}</span>`}
+      </div>
+      ${!isPaused ? `<div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill ${w.status}" style="width:${pct}%"></div></div>
+        <div class="progress-label"><span>${Math.round(pct)}%</span></div>
+      </div>` : ''}
+      <div class="comp-stats">
+        ${!isPaused && comp.ctrlKm ? `<div class="comp-stat">KM: <b class="mono">${fmtKm(w.kmSinceInstall)}</b><span class="text-muted">/${fmtKm(comp.lifeKm)}</span></div>` : ''}
+        ${!isPaused && comp.ctrlTime ? `<div class="comp-stat">Tempo: <b class="mono">${Math.round(w.monthsSinceInstall*10)/10}m</b><span class="text-muted">/${comp.lifeMonths}m</span></div>` : ''}
+        ${!isPaused && comp.ctrlKm && w.kmRemaining !== null ? `<div class="comp-stat">Restam: <b class="mono">${fmtKm(w.kmRemaining)} km</b></div>` : ''}
+        ${!isPaused && comp.ctrlTime && w.timeRemaining !== null ? `<div class="comp-stat">Restam: <b class="mono">${Math.round(w.timeRemaining)}d</b></div>` : ''}
+      </div>
+      <div class="text-sm text-muted">Instalado: ${fmtDate(comp.installDate)} · ${fmtKm(comp.kmAtInstall)} km</div>
+      ${forecastHtml}
+      ${costHtml}
+      <div class="comp-actions">
+        ${rotationBtn}
+        <button class="btn btn-sm btn-success" onclick="openReplace('${comp.id}')">🔁 Trocar</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteComponent('${comp.id}')">🗑 Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER: ACTIVITIES ──
+function renderActivities() {
+  const data = getStore();
+  const filter = document.getElementById('actBikeFilter').value;
+  let acts = data.activities;
+  if (filter) acts = acts.filter(a=>a.bikeId===filter);
+  acts = acts.sort((a,b)=>b.date.localeCompare(a.date));
+  const el = document.getElementById('activitiesList');
+  if (acts.length === 0) {
+    el.innerHTML = `<div class="empty-state">
+      <span class="empty-icon">📍</span>
+      <h3>Sem atividades</h3>
+      <p>Registre seu primeiro pedal!</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Data</th><th>Bike</th><th>Distância</th><th>Fonte</th><th>Notas</th><th></th></tr></thead>
+    <tbody>${acts.map(a => {
+      const bike = data.bikes.find(b=>b.id===a.bikeId);
+      return `<tr>
+        <td><b>${fmtDate(a.date)}</b></td>
+        <td>${bike?bike.name:'—'}</td>
+        <td class="mono text-accent" style="font-weight:700">${fmtKm(a.km)} km</td>
+        <td><span class="badge ${a.source==='gpx'?'badge-green':'badge-yellow'}">${a.source==='gpx'?'GPX':'Manual'}</span></td>
+        <td class="text-muted">${a.notes||'—'}</td>
+        <td><button class="btn-icon" onclick="deleteActivity('${a.id}')" title="Excluir">🗑</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+// ── RENDER: HISTORY ──
+function renderHistory() {
+  const data = getStore();
+  const filter = document.getElementById('histBikeFilter').value;
+  let reps = data.replacements || [];
+  if (filter) reps = reps.filter(r=>r.bikeId===filter);
+  reps = reps.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const el = document.getElementById('historyList');
+  if (reps.length === 0) {
+    el.innerHTML = `<div class="empty-state">
+      <span class="empty-icon">📋</span>
+      <h3>Sem histórico</h3>
+      <p>As trocas de componentes aparecerão aqui.</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Data</th><th>Bike</th><th>Componente</th><th>Tipo</th><th>KM Usado</th><th>Dias</th><th>Preço</th><th>R$/km</th></tr></thead>
+    <tbody>${reps.map(r => {
+      const bike = data.bikes.find(b=>b.id===r.bikeId);
+      return `<tr>
+        <td><b>${fmtDate(r.date)}</b></td>
+        <td>${bike?bike.name:'—'}</td>
+        <td>${r.compName}</td>
+        <td>${COMP_TYPES[r.compType]||r.compType}</td>
+        <td class="mono">${fmtKm(r.kmUsed)} km</td>
+        <td class="mono">${r.daysUsed||0}d</td>
+        <td class="mono">${r.price ? fmtBRL(r.price) : '—'}</td>
+        <td class="mono">${r.costPerKm ? fmtBRL(r.costPerKm) : '—'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+// ── BIKE DETAIL MODAL ──
+function openBikeDetail(bikeId) {
+  const data = getStore();
+  const bike = data.bikes.find(b => b.id === bikeId);
+  if (!bike) return;
+
+  const km = getBikeKm(bikeId);
+  const last = getLastActivity(bikeId);
+  const avg = getMonthlyAverage(bikeId);
+  const comps = data.components.filter(c => c.bikeId === bikeId);
+  const acts = data.activities.filter(a => a.bikeId === bikeId).sort((a,b) => b.date.localeCompare(a.date));
+  const alerts = getAllAlerts().filter(a => a.comp.bikeId === bikeId);
+  const totalActs = acts.length;
+
+  // Hero
+  document.getElementById('bikeDetailName').textContent = bike.name;
+  document.getElementById('bikeDetailSub').textContent =
+    `Cadastrada em ${fmtDate(bike.date)}${last ? ' · Último pedal: ' + fmtDate(last.date) : ''}`;
+
+  // Stat strip
+  document.getElementById('bikeDetailStats').innerHTML = `
+    <div class="bike-stat-item">
+      <div class="bsi-val accent">${fmtKm(km)}</div>
+      <div class="bsi-lbl">KM Total</div>
+    </div>
+    <div class="bike-stat-item">
+      <div class="bsi-val">${totalActs}</div>
+      <div class="bsi-lbl">Pedais</div>
+    </div>
+    <div class="bike-stat-item">
+      <div class="bsi-val">${comps.length}</div>
+      <div class="bsi-lbl">Componentes</div>
+    </div>
+    <div class="bike-stat-item">
+      <div class="bsi-val">${avg > 0 ? fmtKm(avg) : '—'}</div>
+      <div class="bsi-lbl">km/mês</div>
+    </div>
+    <div class="bike-stat-item">
+      <div class="bsi-val">${alerts.length}</div>
+      <div class="bsi-lbl">Alertas</div>
+    </div>
+  `;
+
+  // Body
+  let bodyHtml = '';
+
+  // Alerts section
+  if (alerts.length > 0) {
+    bodyHtml += `<div class="detail-section">
+      <div class="detail-section-title"><span>⚠️</span> Alertas (${alerts.length})</div>
+      ${alerts.map(a => `
+        <div class="comp-row">
+          <div class="comp-row-status ${a.severity}"></div>
+          <div class="comp-row-info">
+            <div class="comp-row-name">${a.message}</div>
+          </div>
+          <button class="btn btn-sm btn-success" onclick="closeModal('bikeDetailModal');openReplace('${a.comp.id}')">Trocar</button>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+
+  // Components section
+  if (comps.length > 0) {
+    bodyHtml += `<div class="detail-section">
+      <div class="detail-section-title"><span>🔧</span> Componentes</div>
+      ${comps.map(comp => {
+        const w = calcWear(comp, bikeId);
+        const pct = Math.min(w.maxPct, 100);
+        const isPaused = comp.groupId && comp.active === false;
+        const statusKey = isPaused ? 'paused' : w.status;
+        return `<div class="comp-row">
+          <div class="comp-row-status ${statusKey}"></div>
+          <div class="comp-row-info">
+            <div class="comp-row-name">${comp.name}</div>
+            <div class="comp-row-type">${COMP_TYPES[comp.type]||comp.type}${isPaused?' · ⏸ Pausado':''}</div>
+          </div>
+          ${!isPaused ? `<div class="comp-row-bar">
+            <div class="progress-bar" style="height:5px">
+              <div class="progress-fill ${w.status}" style="width:${pct}%"></div>
+            </div>
+          </div>
+          <div class="comp-row-pct">${Math.round(pct)}%</div>` : `<span class="badge badge-inactive" style="margin-left:auto">Inativo</span>`}
+          <button class="btn-icon btn-sm" title="Trocar" onclick="closeModal('bikeDetailModal');openReplace('${comp.id}')" style="font-size:0.85rem">🔁</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+  } else {
+    bodyHtml += `<div class="detail-section">
+      <div class="detail-section-title"><span>🔧</span> Componentes</div>
+      <p class="text-sm text-muted">Nenhum componente cadastrado.</p>
+    </div>`;
+  }
+
+  // Recent activities
+  const recentActs = acts.slice(0, 8);
+  if (recentActs.length > 0) {
+    const totalActKm = acts.reduce((s, a) => s + parseFloat(a.km || 0), 0);
+    bodyHtml += `<div class="detail-section">
+      <div class="detail-section-title"><span>📍</span> Atividades Recentes · <span style="font-weight:400;text-transform:none;letter-spacing:0">${fmtKm(totalActKm)} km total</span></div>
+      ${recentActs.map(a => `
+        <div class="act-row">
+          <div class="act-row-date">${fmtDate(a.date)}</div>
+          <div class="act-row-km">${fmtKm(a.km)} km</div>
+          <div class="act-row-notes">${a.notes || '—'}</div>
+          <span class="badge ${a.source==='gpx'?'badge-green':'badge-yellow'}" style="flex-shrink:0">${a.source==='gpx'?'GPX':'Manual'}</span>
+        </div>
+      `).join('')}
+      ${acts.length > 8 ? `<p class="text-sm text-muted" style="margin-top:8px;text-align:center">+ ${acts.length - 8} atividades anteriores</p>` : ''}
+    </div>`;
+  } else {
+    bodyHtml += `<div class="detail-section">
+      <div class="detail-section-title"><span>📍</span> Atividades</div>
+      <p class="text-sm text-muted">Nenhuma atividade registrada.</p>
+    </div>`;
+  }
+
+  document.getElementById('bikeDetailBody').innerHTML = bodyHtml;
+
+  // Footer actions
+  document.getElementById('bikeDetailFooter').innerHTML = `
+    <button class="btn btn-danger btn-sm" onclick="closeModal('bikeDetailModal');deleteBike('${bikeId}')">🗑 Excluir Bike</button>
+    <div style="flex:1"></div>
+    <button class="btn btn-secondary btn-sm" onclick="closeModal('bikeDetailModal');document.getElementById('compBike').value='${bikeId}';openAddComponent()">+ Componente</button>
+    <button class="btn btn-primary btn-sm" onclick="closeModal('bikeDetailModal');document.getElementById('actBike').value='${bikeId}';document.getElementById('actDate').value=today();openModal('activityModal')">+ Pedal</button>
+  `;
+
+  openModal('bikeDetailModal');
+}
+
+// ── REFRESH ALL ──
+function refreshAll() {
+  populateBikeSelects();
+  renderHeaderStats();
+  renderDashboard();
+  renderBikes();
+  renderComponents();
+  renderActivities();
+  renderHistory();
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('bikeDate').value = today();
+  document.getElementById('compDate').value = today();
+  document.getElementById('actDate').value = today();
+  refreshAll();
+});
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) {
+      overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  });
+});
+
+// Keyboard ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.show').forEach(m => {
+      m.classList.remove('show');
+      document.body.style.overflow = '';
+    });
+  }
+});
+</script>
+</body>
+</html>
